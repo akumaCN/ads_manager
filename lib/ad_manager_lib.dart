@@ -11,6 +11,8 @@ import 'admob/impl/native_ad_service_impl.dart';
 import 'admob/impl/rewarded_ad_service_impl.dart';
 import 'admob/impl/rewarded_interstitial_ad_service_impl.dart';
 
+export 'package:google_mobile_ads/google_mobile_ads.dart';
+
 part 'admob/admob_ads_service_abs.dart';
 part 'ads_manager.dart';
 part 'callback/ad_call_back.dart';
