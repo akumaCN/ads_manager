@@ -88,6 +88,6 @@ final class AdsManager {
   }
 
   static void setLogEnable(bool enable) {
-    enable ? LogUtils.enable() : LogUtils.disable();
+    LogUtils.setLevel(enable ? Level.all : Level.warning);
   }
 }
