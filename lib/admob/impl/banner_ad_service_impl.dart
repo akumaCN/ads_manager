@@ -11,9 +11,13 @@ final class BannerAdServiceImpl extends BaseAdsService<BannerAd> {
   BannerAdServiceImpl(super._unit);
 
   @override
-  Future<BannerAd?> loadBannerAd({required BuildContext context, AdOptions? options}) async {
+  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options}) async {
     if (!AdsManager.isMobileAdsInitializeCalled) {
       LogUtils.w('$adsType: Mobile Ads not initialized, ad loading canceled');
+      return null;
+    }
+    if (context == null) {
+      LogUtils.w('$adsType: Context is null, ad loading canceled');
       return null;
     }
     final AdSize? adSize = options?.bannerCustomSize ?? await _getAdaptiveAdSize(context);

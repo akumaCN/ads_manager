@@ -12,7 +12,7 @@ abstract class AdmobAdsServiceAbs<T extends Ad> {
   Future<void> showAdIfAvailable({AdOptions? options, AdCallBack? adCallBack});
 
   ///获取banner广告
-  Future<BannerAd?> loadBannerAd({required BuildContext context, AdOptions? options});
+  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options});
 
   ///获取原生广告
   Future<NativeAd?> loadNativeAd({AdOptions? options});

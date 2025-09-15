@@ -33,7 +33,7 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   Future<void> showAdIfAvailable({AdOptions? options, AdCallBack? adCallBack}) async {}
 
   @override
-  Future<BannerAd?> loadBannerAd({required BuildContext context, AdOptions? options}) {
+  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options}) {
     return Future.value(null);
   }
 
