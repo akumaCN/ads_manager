@@ -86,4 +86,8 @@ final class AdsManager {
   static notifyAdRevenue(AdUnit adUnit, String currencyCode, double valueMicros) {
     _onAdRevenueChange?.call(adUnit, currencyCode, valueMicros);
   }
+
+  static void setLogEnable(bool enable) {
+    enable ? LogUtils.enable() : LogUtils.disable();
+  }
 }
