@@ -1,0 +1,89 @@
+part of "ad_manager_lib.dart";
+
+final class AdsManager {
+  AdsManager._();
+
+  //admob 初始化状态
+  static bool _isMobileAdsInitializeCalled = false;
+  static bool get isMobileAdsInitializeCalled => _isMobileAdsInitializeCalled;
+
+  //初始化Google Mobile Ads SDK
+  ///返回true表示初始化成功，false表示初始化失败
+  ///注意：如果已经初始化过，则不会重复初始化
+  ///可以通过调用[removeAll]方法释放所有广告服务
+  ///在应用启动时调用此方法进行初始化
+  static Future<bool> initAdmob({List<String>? testDeviceIds}) async {
+    if (_isMobileAdsInitializeCalled) {
+      return true;
+    }
+    InitializationStatus status = await MobileAds.instance.initialize();
+    _isMobileAdsInitializeCalled = status.adapterStatuses.values.any(
+      (adapter) => adapter.state == AdapterInitializationState.ready,
+    );
+    if (_isMobileAdsInitializeCalled) {
+      LogUtils.d("MobileAds initialize successful.");
+    } else {
+      LogUtils.d("MobileAds initialize failed.");
+    }
+    if (_isMobileAdsInitializeCalled && testDeviceIds != null && testDeviceIds.isNotEmpty) {
+      MobileAds.instance.updateRequestConfiguration(RequestConfiguration(testDeviceIds: testDeviceIds));
+    }
+    return _isMobileAdsInitializeCalled;
+  }
+
+  //admob广告服务
+  static final _admobServices = <String, AdmobAdsServiceAbs>{};
+
+  ///获取相应的广告服务
+  static AdmobAdsServiceAbs getAdmobService(AdUnit adUnit) {
+    return _admobServices.putIfAbsent(adUnit.serviceKey, () {
+      switch (adUnit.type) {
+        case AdsType.banner:
+          return BannerAdServiceImpl(adUnit);
+        case AdsType.interstitial:
+          return InterstitialAdServiceImpl(adUnit);
+        case AdsType.native:
+          return NativeAdServiceImpl(adUnit);
+        case AdsType.rewarded:
+          return RewardedAdServiceImpl(adUnit);
+        case AdsType.rewardedInterstitial:
+          return RewardedInterstitialAdServiceImpl(adUnit);
+        case AdsType.appOpenAd:
+          return AppOpenAdServiceImpl(adUnit);
+      }
+    });
+  }
+
+  /// 清理某个广告实例
+  static void removeAdmobService(AdUnit adUnit) {
+    final service = _admobServices.remove(adUnit.serviceKey);
+    service?.dispose(); // 调用每个 service 的销毁方法
+  }
+
+  /// 清理某个类型下的所有广告实例
+  static void removeAllByType(AdsType type) {
+    final keysToRemove = _admobServices.keys.where((key) => key.startsWith('${type.name}-')).toList();
+
+    for (final key in keysToRemove) {
+      _admobServices.remove(key)?.dispose();
+    }
+  }
+
+  ///释放全部广告
+  static Future<void> removeAll() async {
+    for (var e in _admobServices.values) {
+      e.dispose();
+    }
+  }
+
+  static Function(AdUnit adUnit, String currencyCode, double valueMicros)? _onAdRevenueChange;
+
+  /// 设置回调
+  static set onAdRevenueChange(Function(AdUnit adUnit, String currencyCode, double valueMicros)? callback) {
+    _onAdRevenueChange = callback;
+  }
+
+  static notifyAdRevenue(AdUnit adUnit, String currencyCode, double valueMicros) {
+    _onAdRevenueChange?.call(adUnit, currencyCode, valueMicros);
+  }
+}
