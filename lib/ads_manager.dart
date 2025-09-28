@@ -76,17 +76,15 @@ final class AdsManager {
     }
   }
 
-  static Function(AdUnit adUnit, String currencyCode, double valueMicros)? _onAdRevenueChange;
+  static final _revenueController = StreamController<AdRevenueEvent>.broadcast();
+  static Stream<AdRevenueEvent> get onAdRevenueChange => _revenueController.stream;
 
-  /// 设置回调
-  static set onAdRevenueChange(Function(AdUnit adUnit, String currencyCode, double valueMicros)? callback) {
-    _onAdRevenueChange = callback;
+  static void notifyAdRevenue(AdRevenueEvent adRevenue) {
+    if (_revenueController.isClosed) return;
+    _revenueController.sink.add(adRevenue);
   }
 
-  static notifyAdRevenue(AdUnit adUnit, String currencyCode, double valueMicros) {
-    _onAdRevenueChange?.call(adUnit, currencyCode, valueMicros);
-  }
-
+  ///是否开启日志
   static void setLogEnable(bool enable) {
     LogUtils.setLevel(enable ? Level.all : Level.warning);
   }

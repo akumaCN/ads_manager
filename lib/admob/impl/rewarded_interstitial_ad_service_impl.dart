@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:ad_manager/ad_manager_lib.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:log_utils/log_utils_lib.dart';
 
 import '../base/full_screen_ads_service.dart';

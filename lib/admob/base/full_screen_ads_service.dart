@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ad_manager/ad_manager_lib.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:log_utils/log_utils_lib.dart';
 import 'package:meta/meta.dart';
 

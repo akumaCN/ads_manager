@@ -1,13 +1,23 @@
+import 'dart:math';
+
 import 'package:ad_manager/ad_manager_lib.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:log_utils/log_utils_lib.dart';
 
 abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   final AdUnit _unit;
   BaseAdsService(this._unit);
+  final _random = Random();
   @protected
-  String get adUnitId => _unit.id;
+  String get adUnitId {
+    var extIdList = _unit.extIdList;
+    if (extIdList == null || extIdList.isEmpty) {
+      return _unit.id;
+    }
+    final allIds = [_unit.id, ...(_unit.extIdList ?? [])];
+    return allIds[_random.nextInt(allIds.length)];
+  }
+
   @protected
   AdsType get adsType => _unit.type;
   // 统一超时处理
@@ -20,7 +30,7 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   @protected
   void notifyAdRevenue(Ad ad, double valueMicros, PrecisionType precision, String currencyCode) {
     LogUtils.d("notifyAdRevenue => ad:$ad valueMicros:$valueMicros currencyCode:$currencyCode precision:$precision");
-    AdsManager.notifyAdRevenue(_unit, currencyCode, valueMicros);
+    AdsManager.notifyAdRevenue(AdRevenueEvent(adsType, ad.adUnitId, precision, currencyCode, valueMicros));
   }
 
   @override
