@@ -29,8 +29,16 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
 
   @protected
   void notifyAdRevenue(Ad ad, double valueMicros, PrecisionType precision, String currencyCode) {
-    LogUtils.d("notifyAdRevenue => ad:$ad valueMicros:$valueMicros currencyCode:$currencyCode precision:$precision");
-    AdsManager.notifyAdRevenue(AdRevenueEvent(adsType, ad.adUnitId, precision, currencyCode, valueMicros));
+    LogUtils.d(
+        "notifyAdRevenue => ad:${ad.runtimeType} valueMicros:$valueMicros currencyCode:$currencyCode precision:$precision");
+    AdsManager.notifyAdRevenue(AdRevenueEvent(
+      adsType,
+      ad.adUnitId,
+      precision,
+      currencyCode,
+      valueMicros,
+      loadedAdapterResponseInfo: ad.responseInfo?.loadedAdapterResponseInfo,
+    ));
   }
 
   @override

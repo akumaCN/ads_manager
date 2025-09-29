@@ -6,8 +6,8 @@ final class AdRevenueEvent {
   final PrecisionType precision;
   final String currencyCode;
   final double valueMicros;
-
-  AdRevenueEvent(this.type, this.adUnitId, this.precision, this.currencyCode, this.valueMicros);
+  final AdapterResponseInfo? loadedAdapterResponseInfo;
+  AdRevenueEvent(this.type, this.adUnitId, this.precision, this.currencyCode, this.valueMicros,{this.loadedAdapterResponseInfo});
 
   @override
   String toString() => {

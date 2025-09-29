@@ -49,10 +49,7 @@ final class BannerAdServiceImpl extends BaseAdsService<BannerAd> {
           safeComplete(ad as BannerAd);
         },
         onAdFailedToLoad: (ad, error) {
-          LogUtils.e(
-            '$adsType: Load failed | Code: ${error.code}, '
-            'Message: ${error.message}',
-          );
+          LogUtils.e('$adsType: Failed to load ad', error: error);
           disposeAd();
           safeComplete();
         },

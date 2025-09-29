@@ -21,7 +21,13 @@ final class AdsManager {
       (adapter) => adapter.state == AdapterInitializationState.ready,
     );
     if (_isMobileAdsInitializeCalled) {
-      LogUtils.d("MobileAds initialize successful.");
+      final buffer = StringBuffer();
+      buffer.writeln("MobileAds initialize successful.");
+      status.adapterStatuses.forEach((key, adapter) {
+        buffer.writeln(
+            "Adapter: $key | State: ${adapter.state} | Latency: ${adapter.latency}ms | Description: ${adapter.description}");
+      });
+      LogUtils.d(buffer.toString());
     } else {
       LogUtils.d("MobileAds initialize failed.");
     }
@@ -87,5 +93,11 @@ final class AdsManager {
   ///是否开启日志
   static void setLogEnable(bool enable) {
     LogUtils.setLevel(enable ? Level.all : Level.warning);
+  }
+
+  static void openAdInspector() {
+    MobileAds.instance.openAdInspector((error) {
+      LogUtils.e("openAdInspector:${error?.code} ${error?.domain} ${error?.message}");
+    });
   }
 }
