@@ -13,8 +13,7 @@ final class AdsManager {
   ///注意：如果已经初始化过，则不会重复初始化
   ///可以通过调用[removeAll]方法释放所有广告服务
   ///在应用启动时调用此方法进行初始化
-  static Future<bool> initAdmob({List<String>? testDeviceIds, bool enableLog = false}) async {
-    setLogEnable(enableLog);
+  static Future<bool> initAdmob({List<String>? testDeviceIds}) async {
     if (_isMobileAdsInitializeCalled) {
       return true;
     }
