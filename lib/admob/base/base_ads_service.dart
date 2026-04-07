@@ -25,7 +25,7 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   final kLoadTimeout = const Duration(seconds: 10);
 
   @protected
-  final request = const AdRequest(httpTimeoutMillis: 1000);
+  final defaultRequest = const AdRequest(httpTimeoutMillis: 1000);
 
   @protected
   void notifyAdRevenue(Ad ad, double valueMicros, PrecisionType precision, String currencyCode) {
@@ -42,21 +42,21 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   }
 
   @override
-  Future<void> preloadAds(int targetCount) async {}
+  Future<void> preloadAds(int targetCount, {AdRequest? request}) async {}
 
   @override
-  Future<void> showFullScreenAds({AdOptions? options, AdCallBack? adCallBack}) async {}
+  Future<void> showFullScreenAds({AdOptions? options, AdRequest? request, AdCallBack? adCallBack}) async {}
 
   @override
   Future<void> showAdIfAvailable({AdOptions? options, AdCallBack? adCallBack}) async {}
 
   @override
-  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options}) {
+  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options, AdRequest? request}) {
     return Future.value(null);
   }
 
   @override
-  Future<NativeAd?> loadNativeAd({AdOptions? options}) {
+  Future<NativeAd?> loadNativeAd({AdOptions? options, AdRequest? request}) {
     return Future.value(null);
   }
 

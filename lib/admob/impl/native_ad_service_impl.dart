@@ -8,7 +8,7 @@ import '../base/base_ads_service.dart';
 final class NativeAdServiceImpl extends BaseAdsService<NativeAd> {
   NativeAdServiceImpl(super._unit);
   @override
-  Future<NativeAd?> loadNativeAd({AdOptions? options}) {
+  Future<NativeAd?> loadNativeAd({AdOptions? options, AdRequest? request}) {
     if (!AdsManager.isMobileAdsInitializeCalled) {
       LogUtils.w('$adsType: Mobile Ads not initialized, ad loading canceled');
       return Future.value(null);
@@ -29,7 +29,7 @@ final class NativeAdServiceImpl extends BaseAdsService<NativeAd> {
 
     nativeAd = NativeAd(
       adUnitId: adUnitId,
-      request: request,
+      request: request ?? defaultRequest,
       listener: NativeAdListener(
         onAdLoaded: (ad) {
           LogUtils.d('$adsType: Ad loaded successfully');

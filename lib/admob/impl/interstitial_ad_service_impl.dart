@@ -9,7 +9,7 @@ final class InterstitialAdServiceImpl extends FullScreenAdsService<InterstitialA
   InterstitialAdServiceImpl(super._unit);
 
   @override
-  Future<InterstitialAd?> performLoadAd() {
+  Future<InterstitialAd?> performLoadAd({AdRequest? request}) {
     if (!AdsManager.isMobileAdsInitializeCalled) {
       LogUtils.w('$adsType: Mobile Ads not initialized, ad loading canceled');
       return Future.value(null);
@@ -30,7 +30,7 @@ final class InterstitialAdServiceImpl extends FullScreenAdsService<InterstitialA
 
     InterstitialAd.load(
         adUnitId: adUnitId,
-        request: request,
+        request: request ?? defaultRequest,
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
             loadedAd = ad;

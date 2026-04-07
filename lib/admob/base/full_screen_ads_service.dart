@@ -15,7 +15,7 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
   FullScreenAdsService(super._unit);
 
   @override
-  Future<void> preloadAds(int targetCount) async {
+  Future<void> preloadAds(int targetCount, {AdRequest? request}) async {
     if (T == RewardedAd || T == RewardedInterstitialAd) {
       //激励广告最多缓存6个
       if (targetCount > _maxRewardedAds) {
@@ -37,7 +37,7 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
 
       try {
         final results = await Future.wait(
-          List.generate(currentBatch, (_) => performLoadAd()),
+          List.generate(currentBatch, (_) => performLoadAd(request: request)),
         );
         final successfulAds = results.whereType<T>().toList();
         _preloadedAds.addAll(successfulAds);
@@ -55,7 +55,7 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
   }
 
   @override
-  Future<void> showFullScreenAds({AdOptions? options, AdCallBack? adCallBack}) async {
+  Future<void> showFullScreenAds({AdOptions? options, AdRequest? request, AdCallBack? adCallBack}) async {
     adCallBack?.onAdLoading?.call(adsType);
     T? ad;
     if (_preloadedAds.isNotEmpty) {
@@ -63,7 +63,7 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
       LogUtils.d('$adsType: Showing preloaded ad (remaining: ${_preloadedAds.length})');
     } else {
       LogUtils.d('$adsType: No preloaded ads, loading new');
-      ad = await performLoadAd();
+      ad = await performLoadAd(request: request);
     }
     adCallBack?.onAdLoaded?.call(adsType);
     if (ad == null) {
@@ -131,7 +131,7 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
 
   //加载广告执行
   @protected
-  Future<T?> performLoadAd();
+  Future<T?> performLoadAd({AdRequest? request});
 
   //执行显示广告
   @protected

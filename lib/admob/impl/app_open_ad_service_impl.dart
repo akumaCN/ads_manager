@@ -74,7 +74,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   }
 
   @override
-  Future<AppOpenAd?> performLoadAd() {
+  Future<AppOpenAd?> performLoadAd({AdRequest? request}) {
     if (!_isAppOpenAdEnabled) {
       LogUtils.w('$adsType: AppOpenAd enable:$_isAppOpenAdEnabled');
       return Future.value(null);
@@ -110,7 +110,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
 
     AppOpenAd.load(
       adUnitId: adUnitId,
-      request: request,
+      request: request ?? defaultRequest,
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
           loadedAd = ad;

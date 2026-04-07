@@ -1,6 +1,6 @@
 name: ad_manager
 description: "for ad plugins"
-version: 1.0.2
+version: 1.0.3
 publish_to: none
 homepage:
 
@@ -16,7 +16,7 @@ dependencies:
       url: https://gitlab.dt.dramatalk.live/vahaflix/flutter/log_utils.git
       ref: 1.0.0
   #Google广告
-  google_mobile_ads: ^6.0.0
+  google_mobile_ads: ^7.0.0
   meta: ^1.15.0
 
 

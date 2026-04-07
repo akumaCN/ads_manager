@@ -10,7 +10,7 @@ final class BannerAdServiceImpl extends BaseAdsService<BannerAd> {
   BannerAdServiceImpl(super._unit);
 
   @override
-  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options}) async {
+  Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options, AdRequest? request}) async {
     if (!AdsManager.isMobileAdsInitializeCalled) {
       LogUtils.w('$adsType: Mobile Ads not initialized, ad loading canceled');
       return null;
@@ -42,7 +42,7 @@ final class BannerAdServiceImpl extends BaseAdsService<BannerAd> {
     bannerAd = BannerAd(
       size: adSize,
       adUnitId: adUnitId,
-      request: request,
+      request: request ?? defaultRequest,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           LogUtils.d('$adsType: Ad loaded | Size: ${adSize.width}x${adSize.height}');

@@ -9,7 +9,7 @@ final class RewardedInterstitialAdServiceImpl extends FullScreenAdsService<Rewar
   RewardedInterstitialAdServiceImpl(super.adUnitId);
 
   @override
-  Future<RewardedInterstitialAd?> performLoadAd() async {
+  Future<RewardedInterstitialAd?> performLoadAd({AdRequest? request}) async {
     if (!AdsManager.isMobileAdsInitializeCalled) {
       LogUtils.w('$adsType: Mobile Ads not initialized, ad loading canceled');
       return Future.value(null);
@@ -30,7 +30,7 @@ final class RewardedInterstitialAdServiceImpl extends FullScreenAdsService<Rewar
 
     RewardedInterstitialAd.load(
         adUnitId: adUnitId,
-        request: request,
+        request: request ?? defaultRequest,
         rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
           onAdLoaded: (ad) {
             loadedAd = ad;

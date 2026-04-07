@@ -9,7 +9,7 @@ final class RewardedAdServiceImpl extends FullScreenAdsService<RewardedAd> {
   RewardedAdServiceImpl(super._unit);
 
   @override
-  Future<RewardedAd?> performLoadAd() async {
+  Future<RewardedAd?> performLoadAd({AdRequest? request}) async {
     if (!AdsManager.isMobileAdsInitializeCalled) {
       LogUtils.w('$adsType: Mobile Ads not initialized, ad loading canceled');
       return Future.value(null);
@@ -30,7 +30,7 @@ final class RewardedAdServiceImpl extends FullScreenAdsService<RewardedAd> {
 
     RewardedAd.load(
       adUnitId: adUnitId,
-      request: request,
+      request: request ?? defaultRequest,
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
           loadedAd = ad;
