@@ -35,8 +35,12 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     }
   }
 
+  int _fixedInterval = 10;
   @override
-  void appOpenAdEnabled(bool enabled) {
+  void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {
+    if (fixedInterval != null) {
+      _fixedInterval = fixedInterval;
+    }
     if (_isAppOpenAdEnabled == enabled) return;
     _isAppOpenAdEnabled = enabled;
     if (_isAppOpenAdEnabled) {
@@ -49,10 +53,10 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
         if (!_isAppOpenAdEnabled || !_shouldShowAppOpenAd) return;
         if (state == AppState.foreground) {
           final secondsSinceLastAd = DateTime.now().difference(_lastAdShownTime).inSeconds;
-          if (secondsSinceLastAd > 10) {
+          if (secondsSinceLastAd >= _fixedInterval) {
             showFullScreenAds();
           } else {
-            LogUtils.d("Ad countdown: ${10 - secondsSinceLastAd}s remaining");
+            LogUtils.d("Ad countdown: ${_fixedInterval - secondsSinceLastAd}s remaining");
           }
         }
       });
@@ -73,8 +77,12 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     _appStateSubscription = null;
   }
 
+  AdRequest? _lastRequest;
   @override
   Future<AppOpenAd?> performLoadAd({AdRequest? request}) {
+    if (request != null) {
+      _lastRequest = request;
+    }
     if (!_isAppOpenAdEnabled) {
       LogUtils.w('$adsType: AppOpenAd enable:$_isAppOpenAdEnabled');
       return Future.value(null);
@@ -110,7 +118,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
 
     AppOpenAd.load(
       adUnitId: adUnitId,
-      request: request ?? defaultRequest,
+      request: _lastRequest ?? defaultRequest,
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
           loadedAd = ad;

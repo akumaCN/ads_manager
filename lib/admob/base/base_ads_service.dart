@@ -64,5 +64,5 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   void shouldShowOpenAppAd(bool shouldShow) {}
 
   @override
-  void appOpenAdEnabled(bool enabled) {}
+  void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {}
 }
