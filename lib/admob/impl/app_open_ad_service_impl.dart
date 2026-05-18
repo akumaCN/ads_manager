@@ -7,7 +7,8 @@ import '../base/full_screen_ads_service.dart';
 
 final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   //加载失败重试间隔
-  static const _retryDelay = Duration(minutes: 1);
+  static const _initialRetryDelay = Duration(minutes: 1);
+  static const _maxRetryDelay = Duration(minutes: 8);
   //广告最大缓存时长
   final Duration _maxCacheDuration = const Duration(hours: 3);
   //广告加载的时间
@@ -20,6 +21,10 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   bool _isAdAvailable = false;
   //是否正在加载广告
   bool _isLoadingAd = false;
+  //失败后的延迟重试
+  Timer? _retryTimer;
+  // 连续失败次数，用来计算指数退避时长
+  int _retryAttempt = 0;
   // 是否应该显示开屏广告
   bool _shouldShowAppOpenAd = true;
   // 开屏广告动态开关控制
@@ -72,11 +77,43 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
 
   // 禁用逻辑
   void _disableAppOpenAd() {
+    _resetRetryState();
     AppStateEventNotifier.stopListening();
     //取消订阅
     _appStateSubscription?.cancel();
     _appStateSubscription = null;
     _isShowingAd = false;
+  }
+
+  void _cancelRetryTimer() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+  }
+
+  void _resetRetryState() {
+    _cancelRetryTimer();
+    _retryAttempt = 0;
+  }
+
+  // 失败后的重试间隔按 1m -> 2m -> 4m -> 8m 递增，并在 8 分钟封顶。
+  Duration _computeRetryDelay() {
+    final factor = 1 << _retryAttempt;
+    final delay = _initialRetryDelay * factor;
+    if (delay > _maxRetryDelay) {
+      return _maxRetryDelay;
+    }
+    return delay;
+  }
+
+  void _scheduleRetry() {
+    _cancelRetryTimer();
+    final delay = _computeRetryDelay();
+    _retryAttempt += 1;
+    LogUtils.w('$adsType retry scheduled in ${delay.inSeconds}s (attempt: $_retryAttempt)');
+    _retryTimer = Timer(delay, () {
+      _retryTimer = null;
+      preloadAds(1);
+    });
   }
 
   AdRequest? _lastRequest;
@@ -95,6 +132,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
       return Future.value(null);
     }
     if (_isLoadingAd || _isAdAvailable) {
+      // 开屏广告同一时刻只允许一个加载流程，避免重复请求和状态覆盖。
       LogUtils.d("$adsType load already in progress or ad available");
       return Future.value(null);
     }
@@ -124,6 +162,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
       request: _lastRequest ?? defaultRequest,
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
+          _resetRetryState();
           loadedAd = ad;
           if (isTimedOut) {
             disposeAd();
@@ -135,7 +174,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
         onAdFailedToLoad: (error) {
           LogUtils.e("$adsType load failed.", error: error);
           completeCompleter();
-          Future.delayed(_retryDelay, () => preloadAds(1));
+          _scheduleRetry();
         },
       ),
     );
@@ -161,6 +200,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
       ad.dispose();
       _isShowingAd = false;
       _isAdAvailable = false;
+      // 当前广告消费完成后，异步补一个新的缓存，供下次前台展示使用。
       preloadAds(1);
     }
 
@@ -172,6 +212,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
 
     if (_isShowingAd) {
       LogUtils.d("$adsType already showing");
+      // 当前已经有开屏广告在展示，新的广告先放回缓存头部，避免白白丢掉。
       restorePreloadedAd(ad, toFront: true);
       return;
     }

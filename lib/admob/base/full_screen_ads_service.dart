@@ -28,6 +28,9 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
       LogUtils.d('$adsType: Preload not needed (current: $initialLength, target: $targetCount)');
       return;
     }
+
+    // 这里的预加载语义是“按缺口执行有限次加载尝试”，
+    // 不是强保证最终缓存数一定达到 targetCount。
     LogUtils.d('$adsType: Starting preload attempts ($needed requested, current cache: $initialLength)');
     int attemptedCount = 0;
 
@@ -76,6 +79,9 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
       LogUtils.e('$adsType: Failed to get ad for showing');
       return;
     }
+
+    // onAdLoaded 表示“已经拿到一个可展示的广告”，
+    // 不区分这个广告来自缓存还是现场加载。
     adCallBack?.onAdLoaded?.call(
       adsType,
       cachedCount: usedPreloadedAd ? _preloadedAds.length : null,

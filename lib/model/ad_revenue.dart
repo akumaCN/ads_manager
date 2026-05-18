@@ -5,9 +5,11 @@ final class AdRevenueEvent {
   final String adUnitId;
   final PrecisionType precision;
   final String currencyCode;
+  // AdMob 回传的是微单位金额，例如 1000000 表示 1 个货币单位
   final double valueMicros;
   final AdapterResponseInfo? loadedAdapterResponseInfo;
-  AdRevenueEvent(this.type, this.adUnitId, this.precision, this.currencyCode, this.valueMicros,{this.loadedAdapterResponseInfo});
+  AdRevenueEvent(this.type, this.adUnitId, this.precision, this.currencyCode, this.valueMicros,
+      {this.loadedAdapterResponseInfo});
 
   @override
   String toString() => {

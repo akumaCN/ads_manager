@@ -8,6 +8,9 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   final AdUnit _unit;
   BaseAdsService(this._unit);
   final _random = Random();
+
+  // 当一个广告位配置了多个 id 时，每次请求随机挑一个，
+  // 调用方只需要维护一份 AdUnit 定义。
   @protected
   String get adUnitId {
     var extIdList = _unit.extIdList;
@@ -28,8 +31,12 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   final defaultRequest = const AdRequest(httpTimeoutMillis: 10000);
 
   @protected
-  void logUnsupportedOperation(String operation) {
-    LogUtils.e('$adsType: Unsupported operation "$operation" for ${T.toString()} service');
+  // 不支持的调用统一视为接入错误：
+  // 既打印日志，也直接抛异常，避免静默失败。
+  Never unsupportedOperation(String operation) {
+    final message = '$adsType: Unsupported operation "$operation" for ${T.toString()} service';
+    LogUtils.e(message);
+    throw UnsupportedError(message);
   }
 
   @protected
@@ -48,38 +55,36 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
 
   @override
   Future<void> preloadAds(int targetCount, {AdRequest? request}) async {
-    logUnsupportedOperation('preloadAds');
+    unsupportedOperation('preloadAds');
   }
 
   @override
   Future<void> showFullScreenAds({AdOptions? options, AdRequest? request, AdCallBack? adCallBack}) async {
-    logUnsupportedOperation('showFullScreenAds');
+    unsupportedOperation('showFullScreenAds');
   }
 
   @override
   Future<void> showAdIfAvailable({AdOptions? options, AdCallBack? adCallBack}) async {
-    logUnsupportedOperation('showAdIfAvailable');
+    unsupportedOperation('showAdIfAvailable');
   }
 
   @override
   Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options, AdRequest? request}) {
-    logUnsupportedOperation('loadBannerAd');
-    return Future.value(null);
+    unsupportedOperation('loadBannerAd');
   }
 
   @override
   Future<NativeAd?> loadNativeAd({AdOptions? options, AdRequest? request}) {
-    logUnsupportedOperation('loadNativeAd');
-    return Future.value(null);
+    unsupportedOperation('loadNativeAd');
   }
 
   @override
   void shouldShowOpenAppAd(bool shouldShow) {
-    logUnsupportedOperation('shouldShowOpenAppAd');
+    unsupportedOperation('shouldShowOpenAppAd');
   }
 
   @override
   void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {
-    logUnsupportedOperation('appOpenAdEnabled');
+    unsupportedOperation('appOpenAdEnabled');
   }
 }
