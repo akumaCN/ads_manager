@@ -58,19 +58,24 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
   Future<void> showFullScreenAds({AdOptions? options, AdRequest? request, AdCallBack? adCallBack}) async {
     adCallBack?.onAdLoading?.call(adsType);
     T? ad;
+    var usedPreloadedAd = false;
     if (_preloadedAds.isNotEmpty) {
       ad = _preloadedAds.removeAt(0);
+      usedPreloadedAd = true;
       LogUtils.d('$adsType: Showing preloaded ad (remaining: ${_preloadedAds.length})');
     } else {
       LogUtils.d('$adsType: No preloaded ads, loading new');
       ad = await performLoadAd(request: request);
     }
-    adCallBack?.onAdLoaded?.call(adsType);
     if (ad == null) {
       adCallBack?.onAdLoadFailed?.call(adsType);
       LogUtils.e('$adsType: Failed to get ad for showing');
       return;
     }
+    adCallBack?.onAdLoaded?.call(
+      adsType,
+      cachedCount: usedPreloadedAd ? _preloadedAds.length : null,
+    );
     await performShow(ad, options: options, adCallBack: adCallBack);
   }
 

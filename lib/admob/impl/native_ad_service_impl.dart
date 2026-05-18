@@ -58,11 +58,6 @@ final class NativeAdServiceImpl extends BaseAdsService<NativeAd> {
       ),
       nativeTemplateStyle: options?.nativeStyle ?? NativeTemplateStyle(templateType: TemplateType.medium),
     )..load();
-    completer.future.whenComplete(() {
-      if (!completer.isCompleted) {
-        nativeAd?.dispose();
-      }
-    });
     return completer.future.timeout(kLoadTimeout, onTimeout: () {
       LogUtils.w('$adsType: Load timed out after $kLoadTimeout');
       disposeAd();

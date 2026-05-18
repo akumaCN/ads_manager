@@ -36,6 +36,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   }
 
   int _fixedInterval = 10;
+
   @override
   void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {
     if (fixedInterval != null) {
@@ -75,9 +76,11 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     //取消订阅
     _appStateSubscription?.cancel();
     _appStateSubscription = null;
+    _isShowingAd = false;
   }
 
   AdRequest? _lastRequest;
+
   @override
   Future<AppOpenAd?> performLoadAd({AdRequest? request}) {
     if (request != null) {
@@ -181,6 +184,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
       adCallBack,
       onAdShowedFullScreenContent: (ad) {
         _isShowingAd = true;
+        _setLastAdShownTime();
         LogUtils.d("$adsType ad showed");
         adCallBack?.onAdShown?.call(adsType);
       },
@@ -197,7 +201,6 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     );
     ad.onPaidEvent = notifyAdRevenue;
     ad.show();
-    _setLastAdShownTime();
   }
 
   //判断广告是否过期
@@ -208,6 +211,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   @override
   Future<void> dispose() async {
     _disableAppOpenAd();
+    await super.dispose();
     LogUtils.d("$adsType service disposed");
   }
 }

@@ -62,24 +62,31 @@ final class AdsManager {
   }
 
   /// 清理某个广告实例
-  static void removeAdmobService(AdUnit adUnit) {
+  static Future<void> removeAdmobService(AdUnit adUnit) async {
     final service = _admobServices.remove(adUnit.serviceKey);
-    service?.dispose(); // 调用每个 service 的销毁方法
+    if (service != null) {
+      await service.dispose();
+    }
   }
 
   /// 清理某个类型下的所有广告实例
-  static void removeAllByType(AdsType type) {
+  static Future<void> removeAllByType(AdsType type) async {
     final keysToRemove = _admobServices.keys.where((key) => key.startsWith('${type.name}-')).toList();
 
     for (final key in keysToRemove) {
-      _admobServices.remove(key)?.dispose();
+      final service = _admobServices.remove(key);
+      if (service != null) {
+        await service.dispose();
+      }
     }
   }
 
   ///释放全部广告
   static Future<void> removeAll() async {
-    for (var e in _admobServices.values) {
-      e.dispose();
+    final services = _admobServices.values.toList();
+    _admobServices.clear();
+    for (final service in services) {
+      await service.dispose();
     }
   }
 

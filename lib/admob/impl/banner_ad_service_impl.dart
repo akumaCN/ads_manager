@@ -56,11 +56,6 @@ final class BannerAdServiceImpl extends BaseAdsService<BannerAd> {
         onPaidEvent: notifyAdRevenue,
       ),
     )..load();
-    completer.future.whenComplete(() {
-      if (!completer.isCompleted) {
-        bannerAd?.dispose();
-      }
-    });
     return completer.future.timeout(kLoadTimeout, onTimeout: () {
       LogUtils.w('$adsType: Load timed out after $kLoadTimeout');
       disposeAd();
