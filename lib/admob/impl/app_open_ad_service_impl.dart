@@ -172,6 +172,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
 
     if (_isShowingAd) {
       LogUtils.d("$adsType already showing");
+      restorePreloadedAd(ad, toFront: true);
       return;
     }
 

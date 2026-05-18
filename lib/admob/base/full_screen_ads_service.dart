@@ -28,12 +28,12 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
       LogUtils.d('$adsType: Preload not needed (current: $initialLength, target: $targetCount)');
       return;
     }
-    LogUtils.d('$adsType: Starting preload ($needed needed)');
-    int loadedCount = 0;
+    LogUtils.d('$adsType: Starting preload attempts ($needed requested, current cache: $initialLength)');
+    int attemptedCount = 0;
 
-    while (loadedCount < needed) {
-      final currentBatch = min(_defaultBatchSize, needed - loadedCount);
-      LogUtils.d('$adsType: Loading batch of $currentBatch ads');
+    while (attemptedCount < needed) {
+      final currentBatch = min(_defaultBatchSize, needed - attemptedCount);
+      LogUtils.d('$adsType: Loading batch with $currentBatch attempt(s)');
 
       try {
         final results = await Future.wait(
@@ -41,17 +41,21 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
         );
         final successfulAds = results.whereType<T>().toList();
         _preloadedAds.addAll(successfulAds);
-        loadedCount += currentBatch;
+        attemptedCount += currentBatch;
 
-        LogUtils.d('$adsType: Batch completed '
-            '(expected: $currentBatch, actual: ${successfulAds.length}, '
-            'total: ${_preloadedAds.length})');
+        LogUtils.d(
+          '$adsType: Batch completed '
+          '(attempted: $currentBatch, loaded: ${successfulAds.length}, cached total: ${_preloadedAds.length})',
+        );
       } catch (e) {
         LogUtils.e('$adsType: Error during batch load', error: e);
       }
     }
 
-    LogUtils.d('$adsType: Preload completed (total: ${_preloadedAds.length})');
+    LogUtils.d(
+      '$adsType: Preload attempts completed '
+      '(requested attempts: $needed, cached total: ${_preloadedAds.length})',
+    );
   }
 
   @override
@@ -95,6 +99,16 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
       final ad = _preloadedAds.removeLast();
       ad.dispose();
     }
+  }
+
+  @protected
+  void restorePreloadedAd(T ad, {bool toFront = false}) {
+    if (toFront) {
+      _preloadedAds.insert(0, ad);
+    } else {
+      _preloadedAds.add(ad);
+    }
+    LogUtils.d('$adsType: Restored ad to preload cache (cached total: ${_preloadedAds.length})');
   }
 
   FullScreenContentCallback<T> getCallback(

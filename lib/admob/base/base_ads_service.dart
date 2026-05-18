@@ -25,7 +25,12 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   final kLoadTimeout = const Duration(seconds: 10);
 
   @protected
-  final defaultRequest = const AdRequest(httpTimeoutMillis: 1000);
+  final defaultRequest = const AdRequest(httpTimeoutMillis: 10000);
+
+  @protected
+  void logUnsupportedOperation(String operation) {
+    LogUtils.e('$adsType: Unsupported operation "$operation" for ${T.toString()} service');
+  }
 
   @protected
   void notifyAdRevenue(Ad ad, double valueMicros, PrecisionType precision, String currencyCode) {
@@ -42,27 +47,39 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   }
 
   @override
-  Future<void> preloadAds(int targetCount, {AdRequest? request}) async {}
+  Future<void> preloadAds(int targetCount, {AdRequest? request}) async {
+    logUnsupportedOperation('preloadAds');
+  }
 
   @override
-  Future<void> showFullScreenAds({AdOptions? options, AdRequest? request, AdCallBack? adCallBack}) async {}
+  Future<void> showFullScreenAds({AdOptions? options, AdRequest? request, AdCallBack? adCallBack}) async {
+    logUnsupportedOperation('showFullScreenAds');
+  }
 
   @override
-  Future<void> showAdIfAvailable({AdOptions? options, AdCallBack? adCallBack}) async {}
+  Future<void> showAdIfAvailable({AdOptions? options, AdCallBack? adCallBack}) async {
+    logUnsupportedOperation('showAdIfAvailable');
+  }
 
   @override
   Future<BannerAd?> loadBannerAd({required BuildContext? context, AdOptions? options, AdRequest? request}) {
+    logUnsupportedOperation('loadBannerAd');
     return Future.value(null);
   }
 
   @override
   Future<NativeAd?> loadNativeAd({AdOptions? options, AdRequest? request}) {
+    logUnsupportedOperation('loadNativeAd');
     return Future.value(null);
   }
 
   @override
-  void shouldShowOpenAppAd(bool shouldShow) {}
+  void shouldShowOpenAppAd(bool shouldShow) {
+    logUnsupportedOperation('shouldShowOpenAppAd');
+  }
 
   @override
-  void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {}
+  void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {
+    logUnsupportedOperation('appOpenAdEnabled');
+  }
 }
