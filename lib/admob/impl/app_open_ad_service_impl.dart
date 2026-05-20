@@ -31,6 +31,9 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   bool _isAppOpenAdEnabled = false;
   //上一次广告显示时间
   DateTime _lastAdShownTime = DateTime.now();
+  //开屏固定间隔
+  int _fixedInterval = 10;
+  bool _enableAutoCache = true;
   AppOpenAdServiceImpl(super._unit);
 
   @override
@@ -40,13 +43,12 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     }
   }
 
-  int _fixedInterval = 10;
-
   @override
-  void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {
+  void appOpenAdEnabled(bool enabled, {int? fixedInterval, bool enableAutoCache = true}) {
     if (fixedInterval != null) {
       _fixedInterval = fixedInterval;
     }
+    _enableAutoCache = enableAutoCache;
     if (_isAppOpenAdEnabled == enabled) return;
     _isAppOpenAdEnabled = enabled;
     if (_isAppOpenAdEnabled) {
@@ -201,7 +203,9 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
       _isShowingAd = false;
       _isAdAvailable = false;
       // 当前广告消费完成后，异步补一个新的缓存，供下次前台展示使用。
-      preloadAds(1);
+      if (_enableAutoCache) {
+        preloadAds(1);
+      }
     }
 
     if (!_shouldShowAppOpenAd) {

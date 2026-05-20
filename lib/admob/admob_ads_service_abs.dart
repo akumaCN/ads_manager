@@ -18,7 +18,7 @@ abstract class AdmobAdsServiceAbs<T extends Ad> {
   Future<NativeAd?> loadNativeAd({AdOptions? options, AdRequest? request});
 
   ///是否启动开屏广告
-  void appOpenAdEnabled(bool enabled, {int? fixedInterval});
+  void appOpenAdEnabled(bool enabled, {int? fixedInterval, bool enableAutoCache = true});
 
   ///是否应该显示开屏广告
   void shouldShowOpenAppAd(bool shouldShow);

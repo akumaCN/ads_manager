@@ -84,7 +84,7 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   }
 
   @override
-  void appOpenAdEnabled(bool enabled, {int? fixedInterval}) {
+  void appOpenAdEnabled(bool enabled, {int? fixedInterval, bool enableAutoCache = true}) {
     unsupportedOperation('appOpenAdEnabled');
   }
 }
