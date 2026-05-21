@@ -101,6 +101,11 @@ abstract class FullScreenAdsService<T extends Ad> extends BaseAdsService<T> {
 
   @override
   Future<void> dispose() async {
+    clearPreloadedAds();
+  }
+
+  @protected
+  void clearPreloadedAds() {
     while (_preloadedAds.isNotEmpty) {
       final ad = _preloadedAds.removeLast();
       ad.dispose();

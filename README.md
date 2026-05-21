@@ -352,6 +352,12 @@ appOpenService.appOpenAdEnabled(true, fixedInterval: 10);
 appOpenService.shouldShowOpenAppAd(false);
 ```
 
+说明：
+
+- 这是“临时不展示”开关
+- 它不会停止后台加载、缓存和失败重试
+- 如果需要真正关闭开屏广告能力，请使用 `appOpenAdEnabled(false)`
+
 恢复允许展示：
 
 ```dart
@@ -665,4 +671,3 @@ class AdBootstrap {
 - 对 Banner / Native 广告对象记得手动释放
 - 对激励广告的奖励逻辑，建议统一在 `onRewardEarned` 和 `onAdDismissed` 中收口
 - 开屏广告是否预加载、何时调用 `shouldShowOpenAppAd(false)`，建议由宿主工程统一约定
-

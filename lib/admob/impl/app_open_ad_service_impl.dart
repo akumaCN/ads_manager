@@ -25,20 +25,22 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   Timer? _retryTimer;
   // 连续失败次数，用来计算指数退避时长
   int _retryAttempt = 0;
-  // 是否应该显示开屏广告
+  // 临时展示开关：只控制“要不要展示”，不影响后台继续加载、缓存和失败重试
   bool _shouldShowAppOpenAd = true;
-  // 开屏广告动态开关控制
+  // 真正总开关：控制前后台监听、加载、缓存、失败重试整条链路是否启用
   bool _isAppOpenAdEnabled = false;
   //上一次广告显示时间
   DateTime _lastAdShownTime = DateTime.now();
   //开屏固定间隔
   int _fixedInterval = 10;
+  // 开启自动缓存
   bool _enableAutoCache = true;
   AppOpenAdServiceImpl(super._unit);
 
   @override
   void shouldShowOpenAppAd(bool shouldShow) {
     if (_shouldShowAppOpenAd != shouldShow) {
+      // 这里只改变展示意图，不主动清理当前缓存，也不停止后台补缓存
       _shouldShowAppOpenAd = shouldShow;
     }
   }
@@ -85,6 +87,9 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     _appStateSubscription?.cancel();
     _appStateSubscription = null;
     _isShowingAd = false;
+    _isAdAvailable = false;
+    _appOpenLoadTime = null;
+    clearPreloadedAds();
   }
 
   void _cancelRetryTimer() {
@@ -185,6 +190,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
       LogUtils.d('$adsType: Ad load timed out');
       disposeAd();
       completeCompleter();
+      _scheduleRetry();
       return null;
     }).catchError((e) => null);
   }
@@ -210,7 +216,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
 
     if (!_shouldShowAppOpenAd) {
       LogUtils.w('$adsType: Should not show App Open Ad, skipping');
-      disposeAd();
+      restorePreloadedAd(ad, toFront: true);
       return;
     }
 
