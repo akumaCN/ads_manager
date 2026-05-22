@@ -79,8 +79,18 @@ abstract class BaseAdsService<T extends Ad> implements AdmobAdsServiceAbs<T> {
   }
 
   @override
-  void shouldShowOpenAppAd(bool shouldShow) {
+  void shouldShowOpenAppAd(bool shouldShow, {Object? blocker}) {
     unsupportedOperation('shouldShowOpenAppAd');
+  }
+
+  @override
+  void setOpenAppAdVisibility(bool shouldShow, {required Object owner}) {
+    unsupportedOperation('setOpenAppAdVisibility');
+  }
+
+  @override
+  void clearOpenAppAdVisibility(Object owner) {
+    unsupportedOperation('clearOpenAppAdVisibility');
   }
 
   @override

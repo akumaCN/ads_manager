@@ -21,7 +21,19 @@ abstract class AdmobAdsServiceAbs<T extends Ad> {
   void appOpenAdEnabled(bool enabled, {int? fixedInterval, bool enableAutoCache = true});
 
   ///是否应该显示开屏广告
-  void shouldShowOpenAppAd(bool shouldShow);
+  ///
+  ///[blocker] 用于标识当前这次“禁止展示”来源。
+  ///嵌套页面场景建议传入页面私有 blocker，避免不同页面互相覆盖状态。
+  void shouldShowOpenAppAd(bool shouldShow, {Object? blocker});
+
+  ///设置当前页面作用域下的开屏广告展示策略。
+  ///
+  ///当存在多个 [owner] 时，以最后一次设置的 owner 为当前生效页面；
+  ///clear 后会自动恢复到上一个页面的策略。
+  void setOpenAppAdVisibility(bool shouldShow, {required Object owner});
+
+  ///清除某个页面作用域下的开屏广告展示策略。
+  void clearOpenAppAdVisibility(Object owner);
 
   ///释放广告
   Future<void> dispose();

@@ -348,6 +348,8 @@ appOpenService.appOpenAdEnabled(true, fixedInterval: 10);
 
 #### 控制某些页面不展示开屏广告
 
+单页面场景可继续直接使用：
+
 ```dart
 appOpenService.shouldShowOpenAppAd(false);
 ```
@@ -356,6 +358,7 @@ appOpenService.shouldShowOpenAppAd(false);
 
 - 这是“临时不展示”开关
 - 它不会停止后台加载、缓存和失败重试
+- 这种写法适合单页面成对调用 `false -> true`
 - 如果需要真正关闭开屏广告能力，请使用 `appOpenAdEnabled(false)`
 
 恢复允许展示：
@@ -363,6 +366,56 @@ appOpenService.shouldShowOpenAppAd(false);
 ```dart
 appOpenService.shouldShowOpenAppAd(true);
 ```
+
+如果存在 A -> B 这类嵌套页面，并且两层页面都需要拦截，建议为每个页面传入独立 blocker：
+
+```dart
+final _appOpenBlocker = Object();
+
+@override
+void initState() {
+  super.initState();
+  appOpenService.shouldShowOpenAppAd(false, blocker: _appOpenBlocker);
+}
+
+@override
+void dispose() {
+  appOpenService.shouldShowOpenAppAd(true, blocker: _appOpenBlocker);
+  super.dispose();
+}
+```
+
+说明：
+
+- 每个 blocker 都代表一个独立的“禁止展示来源”
+- B 页面恢复后，只会移除 B 自己的拦截，不会影响 A 页面之前的拦截状态
+- 未传 `blocker` 时，内部会按引用计数兼容旧行为
+
+如果你希望进入不同页面时按“当前页面自己的策略”切换展示状态，并在返回时自动恢复上一页策略，可以使用 owner 作用域接口：
+
+```dart
+final _pageOwner = Object();
+
+@override
+void initState() {
+  super.initState();
+  appOpenService.setOpenAppAdVisibility(false, owner: _pageOwner);
+}
+
+@override
+void dispose() {
+  appOpenService.clearOpenAppAdVisibility(_pageOwner);
+  super.dispose();
+}
+```
+
+例如：
+
+- A 页面调用 `setOpenAppAdVisibility(false, owner: aOwner)`
+- B 页面调用 `setOpenAppAdVisibility(true, owner: bOwner)`
+- C 页面调用 `setOpenAppAdVisibility(false, owner: cOwner)`
+- 从 C 返回 B 后会恢复为“显示”
+- 从 B 返回 A 后会恢复为“不显示”
 
 #### 主动预加载开屏广告
 
@@ -670,4 +723,4 @@ class AdBootstrap {
 - 不要在多个地方临时拼装 `AdUnit`
 - 对 Banner / Native 广告对象记得手动释放
 - 对激励广告的奖励逻辑，建议统一在 `onRewardEarned` 和 `onAdDismissed` 中收口
-- 开屏广告是否预加载、何时调用 `shouldShowOpenAppAd(false)`，建议由宿主工程统一约定
+- 开屏广告是否预加载、何时调用 `shouldShowOpenAppAd(false)`，建议由宿主工程统一约定；存在嵌套页面时优先使用 `blocker`

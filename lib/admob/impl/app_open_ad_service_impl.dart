@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:ad_manager/ad_manager_lib.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:log_utils/log_utils_lib.dart';
 
 import '../base/full_screen_ads_service.dart';
@@ -25,8 +28,12 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   Timer? _retryTimer;
   // 连续失败次数，用来计算指数退避时长
   int _retryAttempt = 0;
-  // 临时展示开关：只控制“要不要展示”，不影响后台继续加载、缓存和失败重试
-  bool _shouldShowAppOpenAd = true;
+  // 兼容旧版 bool 开关的阻止计数。适用于单页面成对调用 false/true。
+  int _legacyBlockCount = 0;
+  // 页面级阻止集合。嵌套页面场景建议传入 blocker，避免互相覆盖。
+  final Set<Object> _blockers = <Object>{};
+  // 页面级展示策略。最后一个进入的页面优先生效，退出后恢复上一层页面策略。
+  final LinkedHashMap<Object, bool> _visibilityOwners = LinkedHashMap<Object, bool>();
   // 真正总开关：控制前后台监听、加载、缓存、失败重试整条链路是否启用
   bool _isAppOpenAdEnabled = false;
   //上一次广告显示时间
@@ -38,10 +45,51 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
   AppOpenAdServiceImpl(super._unit);
 
   @override
-  void shouldShowOpenAppAd(bool shouldShow) {
-    if (_shouldShowAppOpenAd != shouldShow) {
+  void shouldShowOpenAppAd(bool shouldShow, {Object? blocker}) {
+    final previousState = _shouldShowAppOpenAd;
+
+    if (blocker != null) {
+      if (shouldShow) {
+        _blockers.remove(blocker);
+      } else {
+        _blockers.add(blocker);
+      }
+      LogUtils.d('$adsType blocker updated: ${shouldShow ? "remove" : "add"}, total:${_blockers.length}');
+    } else if (shouldShow) {
+      if (_legacyBlockCount > 0) {
+        _legacyBlockCount -= 1;
+      }
+      LogUtils.d('$adsType legacy blocker released, remaining:$_legacyBlockCount');
+    } else {
+      _legacyBlockCount += 1;
+      LogUtils.d('$adsType legacy blocker added, total:$_legacyBlockCount');
+    }
+
+    if (previousState != _shouldShowAppOpenAd) {
       // 这里只改变展示意图，不主动清理当前缓存，也不停止后台补缓存
-      _shouldShowAppOpenAd = shouldShow;
+      LogUtils.d('$adsType should show changed: $_shouldShowAppOpenAd');
+    }
+  }
+
+  @override
+  void setOpenAppAdVisibility(bool shouldShow, {required Object owner}) {
+    final previousState = _shouldShowAppOpenAd;
+    _visibilityOwners.remove(owner);
+    _visibilityOwners[owner] = shouldShow;
+    LogUtils.d('$adsType visibility owner updated: shouldShow:$shouldShow, total:${_visibilityOwners.length}');
+    if (previousState != _shouldShowAppOpenAd) {
+      LogUtils.d('$adsType should show changed: $_shouldShowAppOpenAd');
+    }
+  }
+
+  @override
+  void clearOpenAppAdVisibility(Object owner) {
+    final previousState = _shouldShowAppOpenAd;
+    final removed = _visibilityOwners.remove(owner) != null;
+    if (!removed) return;
+    LogUtils.d('$adsType visibility owner cleared, total:${_visibilityOwners.length}');
+    if (previousState != _shouldShowAppOpenAd) {
+      LogUtils.d('$adsType should show changed: $_shouldShowAppOpenAd');
     }
   }
 
@@ -54,7 +102,7 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     if (_isAppOpenAdEnabled == enabled) return;
     _isAppOpenAdEnabled = enabled;
     if (_isAppOpenAdEnabled) {
-      AppStateEventNotifier.startListening();
+      unawaited(_startListeningSafely());
       //取消旧订阅
       _appStateSubscription?.cancel();
       //开启订阅
@@ -79,17 +127,57 @@ final class AppOpenAdServiceImpl extends FullScreenAdsService<AppOpenAd> {
     _lastAdShownTime = DateTime.now();
   }
 
+  Future<void> _startListeningSafely() async {
+    try {
+      await AppStateEventNotifier.startListening();
+    } on MissingPluginException catch (error) {
+      LogUtils.w('$adsType startListening skipped: $error');
+    } on PlatformException catch (error) {
+      LogUtils.w('$adsType startListening failed: ${error.message ?? error.code}');
+    }
+  }
+
+  bool get _shouldShowAppOpenAd {
+    if (_visibilityOwners.isNotEmpty) {
+      return _visibilityOwners.values.last;
+    }
+    return _legacyBlockCount == 0 && _blockers.isEmpty;
+  }
+
+  @visibleForTesting
+  bool get debugShouldShowOpenAppAd => _shouldShowAppOpenAd;
+
+  @visibleForTesting
+  int get debugLegacyBlockCount => _legacyBlockCount;
+
+  @visibleForTesting
+  int get debugScopedBlockCount => _blockers.length;
+
+  @visibleForTesting
+  int get debugVisibilityOwnerCount => _visibilityOwners.length;
+
   // 禁用逻辑
   void _disableAppOpenAd() {
     _resetRetryState();
-    AppStateEventNotifier.stopListening();
+    unawaited(_stopListeningSafely());
     //取消订阅
     _appStateSubscription?.cancel();
     _appStateSubscription = null;
     _isShowingAd = false;
     _isAdAvailable = false;
     _appOpenLoadTime = null;
+    _visibilityOwners.clear();
     clearPreloadedAds();
+  }
+
+  Future<void> _stopListeningSafely() async {
+    try {
+      await AppStateEventNotifier.stopListening();
+    } on MissingPluginException catch (error) {
+      LogUtils.w('$adsType stopListening skipped: $error');
+    } on PlatformException catch (error) {
+      LogUtils.w('$adsType stopListening failed: ${error.message ?? error.code}');
+    }
   }
 
   void _cancelRetryTimer() {
