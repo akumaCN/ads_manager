@@ -3,7 +3,7 @@
 `ads_manager` is a Flutter ad service wrapper built on top of `google_mobile_ads`.
 It helps centralize SDK initialization, ad instance reuse, preload flows, app open ad control, and revenue callbacks.
 
-[中文文档](README.zh.md) | [双语更新说明](CHANGELOG.md)
+[中文文档](README.zh.md) | [CHANGELOG](CHANGELOG.md)
 
 ## Features
 
