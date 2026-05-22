@@ -3,7 +3,7 @@
 `ads_manager` 是一个基于 `google_mobile_ads` 的 Flutter 广告服务封装库。
 它用于统一管理广告 SDK 初始化、广告实例复用、预加载流程、开屏广告展示控制和广告收益回传。
 
-[English README](README.md) | [双语更新说明](CHANGELOG.md)
+[English README](README.md) | [更新说明](CHANGELOG.md)
 
 ## 特性
 
