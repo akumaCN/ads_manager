@@ -1,0 +1,15 @@
+name: ads_manager_example
+description: Example app for the ads_manager package.
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ads_manager:
+    path: ../
+
+flutter:
+  uses-material-design: true

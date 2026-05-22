@@ -1,38 +1,38 @@
 # ads_manager
 
-`ads_manager` is a Flutter ad service wrapper built on top of `google_mobile_ads`.
-It helps centralize SDK initialization, ad instance reuse, preload flows, app open ad control, and revenue callbacks.
+`ads_manager` 是一个基于 `google_mobile_ads` 的 Flutter 广告服务封装库。
+它用于统一管理广告 SDK 初始化、广告实例复用、预加载流程、开屏广告展示控制和广告收益回传。
 
-[中文文档](README.zh.md) | [中文更新说明](CHANGELOG.zh.md)
+[English README](README.md) | [中文更新说明](CHANGELOG.zh.md)
 
-## Features
+## 特性
 
-- Unified access to Banner, Interstitial, Rewarded, Rewarded Interstitial, Native, and App Open ads
-- Shared ad service cache keyed by ad unit
-- Preload support for full-screen ads
-- Revenue event stream for analytics reporting
-- App open ad enable/disable control
-- App open ad page-level visibility control for nested routes
-- Clear logs and explicit unsupported-operation errors
+- 统一接入 Banner、插屏、激励、激励插屏、原生、开屏广告
+- 基于广告位缓存并复用 service 实例
+- 支持全屏广告预加载
+- 支持广告收益事件统一监听
+- 支持开屏广告启停控制
+- 支持嵌套路由场景下的开屏广告页面级展示控制
+- 对错误调用提供明确日志和异常
 
-## Installation
+## 安装
 
-Add the dependency:
+在 `pubspec.yaml` 中添加依赖：
 
 ```yaml
 dependencies:
   ads_manager: ^1.1.2
 ```
 
-Then run:
+然后执行：
 
 ```bash
 flutter pub get
 ```
 
-## Quick Start
+## 快速开始
 
-### 1. Initialize Mobile Ads
+### 1. 初始化 Mobile Ads
 
 ```dart
 final success = await AdsManager.initAdmob(
@@ -40,11 +40,11 @@ final success = await AdsManager.initAdmob(
 );
 
 if (!success) {
-  // Handle initialization failure.
+  // 初始化失败时自行兜底
 }
 ```
 
-### 2. Get an ad service
+### 2. 获取广告服务
 
 ```dart
 const rewardedUnit = AdUnit(
@@ -55,7 +55,7 @@ const rewardedUnit = AdUnit(
 final rewardedService = AdsManager.getAdmobService(rewardedUnit);
 ```
 
-### 3. Preload and show an ad
+### 3. 预加载并展示广告
 
 ```dart
 await rewardedService.preloadAds(1);
@@ -67,16 +67,16 @@ await rewardedService.showAdIfAvailable(
   ),
   adCallBack: AdCallBack(
     onRewardEarned: (type) {
-      // Reward earned.
+      // 用户获得奖励
     },
     onAdDismissed: (type, {isEarnedReward}) {
-      // Ad closed.
+      // 广告关闭
     },
   ),
 );
 ```
 
-## Supported Ad Types
+## 支持的广告类型
 
 ```dart
 enum AdsType {
@@ -89,22 +89,22 @@ enum AdsType {
 }
 ```
 
-## Core APIs
+## 核心 API
 
 ### AdsManager
 
-`AdsManager` is the main entry point. It is responsible for:
+`AdsManager` 是统一入口，负责：
 
-- Initializing the Google Mobile Ads SDK
-- Creating and caching ad services
-- Disposing one ad service or all ad services
-- Dispatching ad revenue events
-- Opening Ad Inspector
-- Toggling logs
+- 初始化 Google Mobile Ads SDK
+- 创建并缓存广告 service
+- 释放单个或全部广告 service
+- 分发广告收益事件
+- 打开 Ad Inspector
+- 控制日志开关
 
 ### AdUnit
 
-`AdUnit` describes an ad slot:
+`AdUnit` 用于描述一个广告位：
 
 ```dart
 const adUnit = AdUnit(
@@ -113,11 +113,11 @@ const adUnit = AdUnit(
 );
 ```
 
-You can also provide `extIdList` to randomly rotate among multiple ad unit IDs.
+也可以通过 `extIdList` 传入多个广告位 ID，运行时会随机轮换。
 
 ### AdOptions
 
-`AdOptions` carries extra configuration for loading or showing ads:
+`AdOptions` 用于补充加载或展示时的附加配置：
 
 - `userId`
 - `customData`
@@ -126,7 +126,7 @@ You can also provide `extIdList` to randomly rotate among multiple ad unit IDs.
 
 ### AdCallBack
 
-`AdCallBack` exposes ad lifecycle hooks such as:
+`AdCallBack` 提供广告生命周期回调，包括：
 
 - `onAdLoading`
 - `onAdLoaded`
@@ -138,9 +138,9 @@ You can also provide `extIdList` to randomly rotate among multiple ad unit IDs.
 - `onRewardEarned`
 - `onAdImpression`
 
-## Usage
+## 使用方式
 
-### Banner Ads
+### Banner 广告
 
 ```dart
 const bannerUnit = AdUnit(
@@ -160,7 +160,7 @@ if (bannerAd != null) {
 }
 ```
 
-### Native Ads
+### 原生广告
 
 ```dart
 const nativeUnit = AdUnit(
@@ -179,7 +179,7 @@ final nativeAd = await nativeService.loadNativeAd(
 );
 ```
 
-### Interstitial Ads
+### 插屏广告
 
 ```dart
 const interstitialUnit = AdUnit(
@@ -193,7 +193,7 @@ await interstitialService.preloadAds(1);
 await interstitialService.showAdIfAvailable();
 ```
 
-### Rewarded Ads
+### 激励广告
 
 ```dart
 const rewardedUnit = AdUnit(
@@ -212,7 +212,7 @@ await rewardedService.showAdIfAvailable(
 );
 ```
 
-### Rewarded Interstitial Ads
+### 激励插屏广告
 
 ```dart
 const rewardedInterstitialUnit = AdUnit(
@@ -227,7 +227,7 @@ await rewardedInterstitialService.preloadAds(2);
 await rewardedInterstitialService.showFullScreenAds();
 ```
 
-### App Open Ads
+### 开屏广告
 
 ```dart
 const appOpenUnit = AdUnit(
@@ -239,14 +239,14 @@ final appOpenService = AdsManager.getAdmobService(appOpenUnit);
 appOpenService.appOpenAdEnabled(true, fixedInterval: 10);
 ```
 
-Temporary hide/show:
+临时关闭/恢复展示：
 
 ```dart
 appOpenService.shouldShowOpenAppAd(false);
 appOpenService.shouldShowOpenAppAd(true);
 ```
 
-For nested pages that all want to hide app open ads, use independent blockers:
+如果存在多个嵌套页面都需要关闭开屏广告，建议使用独立 blocker：
 
 ```dart
 final blocker = Object();
@@ -264,7 +264,7 @@ void dispose() {
 }
 ```
 
-For page-stack-aware visibility, use owner-based visibility:
+如果你希望“当前页面自己的策略优先生效，并在返回时自动恢复上一页策略”，可以使用 owner 作用域接口：
 
 ```dart
 final pageOwner = Object();
@@ -282,17 +282,17 @@ void dispose() {
 }
 ```
 
-This lets routes behave like:
+例如：
 
-- Page A hides app open ads
-- Page B allows app open ads
-- Page C hides app open ads
-- Returning from C restores B's rule
-- Returning from B restores A's rule
+- A 页面关闭开屏广告
+- B 页面允许开屏广告
+- C 页面关闭开屏广告
+- 从 C 返回 B 后恢复为允许展示
+- 从 B 返回 A 后恢复为关闭展示
 
-## Revenue Events
+## 广告收益监听
 
-Listen for ad revenue updates through `AdsManager.onAdRevenueChange`:
+可以通过 `AdsManager.onAdRevenueChange` 监听广告收益事件：
 
 ```dart
 final subscription = AdsManager.onAdRevenueChange.listen((event) {
@@ -303,17 +303,17 @@ final subscription = AdsManager.onAdRevenueChange.listen((event) {
 });
 ```
 
-## Notes
+## 说明
 
-- Call `dispose()` on returned `BannerAd` and `NativeAd` instances when no longer needed
-- Rewarded and rewarded interstitial preload count is capped at 6
-- App open ad retries use exponential backoff after load failures
-- `preloadAds(targetCount)` fills by gap and does not guarantee that every request succeeds
+- `BannerAd` 和 `NativeAd` 由调用方负责在不再使用时执行 `dispose()`
+- 激励广告和激励插屏广告的预加载上限为 6
+- 开屏广告加载失败后会走指数退避重试
+- `preloadAds(targetCount)` 按缺口补充，不保证每一次请求都成功
 
-## Example
+## 示例
 
-See the minimal example in [example/lib/main.dart](example/lib/main.dart).
+可参考最小示例工程 [example/lib/main.dart](example/lib/main.dart)。
 
 ## License
 
-This package is available under the MIT License. See [LICENSE](LICENSE).
+本项目采用 MIT License，详见 [LICENSE](LICENSE)。

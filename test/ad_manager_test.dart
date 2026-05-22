@@ -1,5 +1,5 @@
-import 'package:ad_manager/ad_manager_lib.dart';
-import 'package:ad_manager/admob/impl/app_open_ad_service_impl.dart';
+import 'package:ads_manager/ad_manager_lib.dart';
+import 'package:ads_manager/admob/impl/app_open_ad_service_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

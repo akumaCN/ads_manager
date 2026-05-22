@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:ad_manager/ad_manager_lib.dart';
+import 'package:ads_manager/ad_manager_lib.dart';
 import 'package:flutter/widgets.dart';
-import 'package:log_utils/log_utils_lib.dart';
+import 'package:log_utils_plus/log_utils_lib.dart';
 
 import '../base/base_ads_service.dart';
 

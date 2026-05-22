@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:log_utils/log_utils_lib.dart';
+import 'package:log_utils_plus/log_utils_lib.dart';
 
 import 'admob/impl/app_open_ad_service_impl.dart';
 import 'admob/impl/banner_ad_service_impl.dart';

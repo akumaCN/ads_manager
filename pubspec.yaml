@@ -1,8 +1,14 @@
-name: ad_manager
-description: "for ad plugins"
-version: 1.1.2
-publish_to: none
-homepage:
+name: ads_manager
+description: "A Flutter ad service wrapper around google_mobile_ads with caching, callbacks, revenue events, and app open ad controls."
+version: 1.2.0
+homepage: https://github.com/akumaCN/ads_manager
+repository: https://github.com/akumaCN/ads_manager.git
+issue_tracker: https://github.com/akumaCN/ads_manager/issues
+topics:
+  - ads
+  - admob
+  - monetization
+  - flutter-plugin
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -11,14 +17,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  log_utils:
-    git:
-      url: https://gitlab.dt.dramatalk.live/vahaflix/flutter/log_utils.git
-      ref: main
+  log_utils_plus: ^1.2.0
   #Google广告
   google_mobile_ads: ^7.0.0
-  meta: ^1.15.0
-
 
 dev_dependencies:
   flutter_test:
