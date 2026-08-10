@@ -1,3 +1,9 @@
+## 1.2.1
+
+- Updated `google_mobile_ads` to `^9.0.0`
+- Updated SDK constraints for `google_mobile_ads` 9 compatibility
+- Replaced deprecated anchored adaptive banner size API
+
 ## 1.2.0
 - EN: Initial public API release
 

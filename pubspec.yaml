@@ -1,6 +1,6 @@
 name: ads_manager
 description: "A Flutter ad service wrapper around google_mobile_ads with caching, callbacks, revenue events, and app open ad controls."
-version: 1.2.0
+version: 1.2.1
 homepage: https://github.com/akumaCN/ads_manager
 repository: https://github.com/akumaCN/ads_manager.git
 issue_tracker: https://github.com/akumaCN/ads_manager/issues
@@ -11,20 +11,20 @@ topics:
   - flutter-plugin
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.0.0"
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: ">=3.38.1"
 
 dependencies:
   flutter:
     sdk: flutter
   log_utils_plus: ^1.2.0
   #Google广告
-  google_mobile_ads: ^7.0.0
+  google_mobile_ads: ^9.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

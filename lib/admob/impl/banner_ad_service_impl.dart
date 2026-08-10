@@ -75,7 +75,7 @@ final class BannerAdServiceImpl extends BaseAdsService<BannerAd> {
   Future<AdSize?> _getAdaptiveAdSize(BuildContext context) async {
     try {
       final width = MediaQuery.sizeOf(context).width.truncate();
-      return await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(width);
+      return await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
     } catch (error, stackTrace) {
       LogUtils.e(
         '$adsType: Error getting adaptive ad size',
