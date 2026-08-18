@@ -21,7 +21,7 @@
 
 ```yaml
 dependencies:
-  ads_manager: ^1.2.0
+  ads_manager: ^1.2.2
 ```
 
 然后执行：

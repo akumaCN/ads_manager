@@ -1,3 +1,7 @@
+## 1.2.2
+
+- Updated `google_mobile_ads` to `^9.1.0`
+
 ## 1.2.1
 
 - Updated `google_mobile_ads` to `^9.0.0`
