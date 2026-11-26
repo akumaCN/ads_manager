@@ -1,3 +1,8 @@
+## 1.2.3
+
+- Updated `google_mobile_ads` to `^9.2.0`
+- Excluded `build/**` from analyzer to avoid false positives during release checks
+
 ## 1.2.2
 
 - Updated `google_mobile_ads` to `^9.1.0`

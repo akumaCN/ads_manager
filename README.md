@@ -21,7 +21,7 @@ Add the dependency:
 
 ```yaml
 dependencies:
-  ads_manager: ^1.2.2
+  ads_manager: ^1.2.3
 ```
 
 Then run:
